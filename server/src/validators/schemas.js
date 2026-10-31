@@ -242,6 +242,42 @@ const assessmentSchema = z.object({
   questionIds: z.array(z.coerce.number().int().positive()).optional().default([])
 });
 
+const createAnnouncementSchema = z.object({
+  scope: z.enum(['institution', 'department', 'course', 'class']).optional().default('institution'),
+  departmentId: z.coerce.number().int().positive().optional().nullable(),
+  courseId: z.coerce.number().int().positive().optional().nullable(),
+  classId: z.coerce.number().int().positive().optional().nullable(),
+  title: z.string().min(3, 'Title must be at least 3 characters').max(220, 'Title cannot exceed 220 characters'),
+  content: z.string().min(10, 'Content must be at least 10 characters'),
+  priority: z.enum(['normal', 'important', 'urgent']).optional().default('normal'),
+  isPinned: z.boolean().optional().default(false),
+  publishAt: z.string().optional().nullable(),
+  expiresAt: z.string().optional().nullable()
+}).superRefine((data, ctx) => {
+  if (data.scope === 'department' && !data.departmentId) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'departmentId is required when scope is "department"', path: ['departmentId'] });
+  }
+  if (data.scope === 'course' && !data.courseId) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'courseId is required when scope is "course"', path: ['courseId'] });
+  }
+  if (data.scope === 'class' && !data.classId) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'classId is required when scope is "class"', path: ['classId'] });
+  }
+});
+
+const updateAnnouncementSchema = z.object({
+  title: z.string().min(3).max(220).optional(),
+  content: z.string().min(10).optional(),
+  priority: z.enum(['normal', 'important', 'urgent']).optional(),
+  isPinned: z.boolean().optional(),
+  publishAt: z.string().optional().nullable(),
+  expiresAt: z.string().optional().nullable(),
+  scope: z.enum(['institution', 'department', 'course', 'class']).optional(),
+  departmentId: z.coerce.number().int().positive().optional().nullable(),
+  courseId: z.coerce.number().int().positive().optional().nullable(),
+  classId: z.coerce.number().int().positive().optional().nullable()
+});
+
 const gradeCategoriesBulkSchema = z.object({
   categories: z.array(z.object({
     id: z.coerce.number().int().positive().optional(),
@@ -271,6 +307,8 @@ module.exports = {
   assignmentSchema,
   questionSchema,
   assessmentSchema,
-  gradeCategoriesBulkSchema
+  gradeCategoriesBulkSchema,
+  createAnnouncementSchema,
+  updateAnnouncementSchema
 };
 

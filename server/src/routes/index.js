@@ -159,8 +159,12 @@ router.post('/certificates/issue', requireAuth, requirePermission('certificates:
 router.get('/reports', requireAuth, requirePermission('reports:export'), gradingCtrl.generateReport);
 
 // 9. Communication (/api/announcements, /api/discussions, /api/messages, /api/notifications)
-router.get('/announcements', requireAuth, commCtrl.listAnnouncements);
-router.post('/announcements', requireAuth, requirePermission('announcements:manage'), commCtrl.createAnnouncement);
+router.get('/announcements',           requireAuth,                                              commCtrl.listAnnouncements);
+router.post('/announcements',          requireAuth, requirePermission('announcements:manage'),   commCtrl.createAnnouncement);
+router.get('/announcements/:id',       requireAuth,                                              commCtrl.getAnnouncementById);
+router.put('/announcements/:id',       requireAuth, requirePermission('announcements:manage'),   commCtrl.updateAnnouncement);
+router.delete('/announcements/:id',    requireAuth, requirePermission('announcements:manage'),   commCtrl.deleteAnnouncement);
+router.patch('/announcements/:id/pin', requireAuth, requirePermission('announcements:manage'),   commCtrl.toggleAnnouncementPin);
 
 router.get('/discussions', requireAuth, commCtrl.listDiscussions);
 router.post('/discussions', requireAuth, commCtrl.createDiscussionThread);
